@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HW Widget — Protein Folding | Cyrus Zahiri</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .wrap { max-width: 1120px; margin: 16px auto 40px auto; padding: 0 16px; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin: 12px 0 16px 0; }
+        .header .title { font-size: 24px; margin: 0; }
+        .back { color: #0a84ff; text-decoration: none; }
+        .layout { display: grid; grid-template-columns: 1fr 280px; gap: 16px; }
+        .panel { border: 1px solid #e5e5ea; border-radius: 12px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.06); padding: 12px; }
+        .canvas-wrap { display: grid; grid-template-rows: auto auto; gap: 12px; }
+        .controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .control { border: 1px solid #e5e5ea; border-radius: 10px; padding: 10px; background: #fafafa; }
+        label { font-weight: 600; display: block; margin-bottom: 6px; }
+        .row { display: flex; align-items: center; gap: 8px; }
+        .energy { height: 520px; display: flex; flex-direction: column; gap: 8px; }
+        .bar { position: relative; flex: 1; background: #f2f2f7; border: 1px solid #e5e5ea; border-radius: 12px; overflow: hidden; }
+        .bar-fill { position: absolute; bottom: 0; left: 0; right: 0; height: 20%; background: linear-gradient(180deg, #64d2ff, #0a84ff); transition: height 120ms ease; }
+        .bar-label { font-size: 12px; color: #3a3a3c; text-align: center; }
+        canvas { width: 100%; height: auto; background: #0b0b0c; border-radius: 12px; display: block; }
+        .edu { font-size: 14px; color: #3a3a3c; }
+        .edu h3 { margin: 8px 0; }
+        body.dark .panel { background: #141415; border-color: #2c2c2e; }
+        body.dark .control { background: #1c1c1e; border-color: #2c2c2e; }
+        body.dark .bar { background: #1c1c1e; border-color: #2c2c2e; }
+        body.dark .bar-label, body.dark .edu { color: #d1d1d6; }
+    </style>
+    <script defer src="/scripts/hw-widget.js"></script>
+</head>
+<body>
+    <div class="wrap">
+        <div class="header">
+            <h1 class="title">HW Widget — Protein Folding</h1>
+            <a class="back" href="/">← Back</a>
+        </div>
+        <div class="layout">
+            <div class="canvas-wrap panel">
+                <canvas id="protein" width="800" height="520"></canvas>
+                <div class="controls">
+                    <div class="control">
+                        <label for="solvent">Solvent</label>
+                        <select id="solvent">
+                            <option value="water">Water (polar)</option>
+                            <option value="membrane">Membrane (non‑polar)</option>
+                            <option value="intermediate">Intermediate</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label for="temperature">Temperature: <span id="tempLabel">Medium</span></label>
+                        <input id="temperature" type="range" min="0" max="100" value="50" />
+                    </div>
+                    <div class="control">
+                        <label for="secBias">Secondary structure bias</label>
+                        <select id="secBias">
+                            <option value="none">None</option>
+                            <option value="helix">Helix (i→i+3 H-bonds)</option>
+                            <option value="sheet">Sheet (extended, i→i+2)</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label for="speed">Simulation speed</label>
+                        <input id="speed" type="range" min="10" max="120" value="60" />
+                    </div>
+                    <div class="control">
+                        <label for="sequenceInput">Amino acid sequence (one-letter codes)</label>
+                        <div class="row">
+                            <input id="sequenceInput" type="text" placeholder="e.g. MVKTAW..." style="flex:1;" />
+                            <button id="applySeq" class="pill">Apply</button>
+                        </div>
+                        <div class="row" style="margin-top:6px;">
+                            <button id="presetCore" class="pill">Preset: Hydrophobic core</button>
+                            <button id="presetHelix" class="pill">Preset: Amphipathic helix</button>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <label>Display options</label>
+                        <div class="row">
+                            <label style="display:flex;align-items:center;gap:6px;"><input id="showHBonds" type="checkbox" checked /> H-bonds</label>
+                            <label style="display:flex;align-items:center;gap:6px;"><input id="showTrails" type="checkbox" /> Trails</label>
+                            <label style="display:flex;align-items:center;gap:6px;"><input id="showCore" type="checkbox" checked /> Show core ring</label>
+                            <label style="display:flex;align-items:center;gap:6px;"><input id="enableDrag" type="checkbox" checked /> Drag</label>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <div class="row">
+                            <button id="randomize" class="pill">Randomize sequence</button>
+                            <button id="reset" class="pill">Reset</button>
+                            <button id="pause" class="pill">Pause</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel edu">
+                    <h3>How proteins fold</h3>
+                    <p>
+                        Proteins are chains of amino acids. Local patterns form <strong>secondary structure</strong> —
+                        α‑helices and β‑sheets — stabilized by hydrogen bonds. The overall 3D shape is the
+                        <strong>tertiary structure</strong>, driven largely by <em>hydrophobic</em> (water‑avoiding) residues
+                        collapsing inward and <em>hydrophilic</em> (water‑loving) residues remaining solvent‑exposed.
+                    </p>
+                    <p>
+                        Use the controls to change the solvent and temperature. In water, hydrophobic residues attract
+                        each other more strongly, promoting a compact core. In a membrane‑like environment, hydrophilic
+                        contacts are favored instead. The energy bar shows the model’s approximate potential energy.
+                    </p>
+                </div>
+            </div>
+            <div class="panel energy">
+                <div class="bar">
+                    <div id="energyFill" class="bar-fill"></div>
+                </div>
+                <div class="bar-label">Potential energy</div>
+                <canvas id="energyChart" width="280" height="120" style="width:100%;height:auto;border-radius:8px;background:#0b0b0c;"></canvas>
+                <div class="edu">
+                    <p>Lower energy → more stable conformation.</p>
+                    <p>This simplified model uses springs for bonds, mild angle stiffness, and pairwise
+                    interactions that depend on hydrophobic/hydrophilic character and solvent.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
