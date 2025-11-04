@@ -1,8 +1,12 @@
 body {
-    font-family: Georgia, serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
     margin: 0;
     padding: 0;
+    color: #1c1c1e;
+    background: #ffffff;
 }
+
+html { scroll-behavior: smooth; }
 
 .page-section {
     padding: 24px;
@@ -21,4 +25,231 @@ body {
 
 #section3 {
     background-color: #f0ffe6;
+}
+
+/* Centered layout for hello world + button */
+.centered {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Red delete cookies button */
+.delete-btn {
+    background-color: #e53935;
+    color: #ffffff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c62828;
+}
+
+/* Emoji explosion overlay and pieces */
+#emoji-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.cookie-emoji {
+    position: absolute;
+    font-size: 24px;
+    line-height: 1;
+    will-change: transform, opacity;
+    animation: explode var(--dur, 900ms) ease-out forwards;
+}
+
+/* ---------- Cupertino-style layout ---------- */
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.nav {
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #e5e5ea;
+    z-index: 1000;
+}
+
+.nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+}
+
+.brand {
+    font-weight: 700;
+}
+
+.nav-links a {
+    color: #1c1c1e;
+    text-decoration: none;
+    margin-left: 16px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background-color 140ms ease, color 140ms ease;
+}
+
+.nav-links a:hover { background: #f2f2f7; }
+
+.section {
+    padding: 56px 0;
+}
+
+.hero {
+    padding: 96px 0 72px 0;
+    background:
+        radial-gradient(1000px 500px at 10% -10%, #e8f2ff 0%, rgba(232,242,255,0) 60%),
+        radial-gradient(900px 450px at 110% 0%, #fff0f3 0%, rgba(255,240,243,0) 60%),
+        linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+}
+
+.hero-title {
+    font-size: 48px;
+    line-height: 1.1;
+    margin: 0 0 8px 0;
+    background: linear-gradient(90deg, #0a84ff, #5856d6, #ff375f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-sub {
+    color: #3a3a3c;
+    margin: 0 0 20px 0;
+}
+
+.hero-actions { display: flex; gap: 12px; }
+
+.section-title {
+    font-size: 28px;
+    margin: 0 0 20px 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(10,132,255,0.12);
+    border-color: #d1e7ff;
+}
+
+.link { color: #0a84ff; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+
+.footer {
+    padding: 24px 0;
+    border-top: 1px solid #e5e5ea;
+    background: #fff;
+    color: #3a3a3c;
+}
+
+/* Ensure content sits above decorative layers */
+.nav, .section, .hero, .footer { position: relative; z-index: 1; }
+
+/* Floating colorful shapes overlay */
+#shapes-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.shape-bubble {
+    position: absolute;
+    width: var(--size, 160px);
+    height: var(--size, 160px);
+    border-radius: 50%;
+    opacity: var(--opacity, 0.35);
+    filter: blur(var(--blur, 0px));
+    transform: translate(-50%, -50%) translate3d(0,0,0);
+    animation:
+        drift var(--dur, 18s) ease-in-out var(--delay, 0s) infinite alternate,
+        spin var(--spinDur, 60s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes drift {
+    from { transform: translate(-50%, -50%) translate3d(var(--x, 0px), var(--y, 0px), 0) scale(1); }
+    to   { transform: translate(-50%, -50%) translate3d(calc(var(--x, 0px) + var(--dx, 120px)), calc(var(--y, 0px) + var(--dy, -140px)), 0) scale(var(--scale, 1.1)); }
+}
+
+@keyframes spin { from { rotate: 0deg; } to { rotate: 360deg; } }
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .shape-bubble { animation: none; }
+}
+
+/* Pill button style for small actions */
+.pill {
+    appearance: none;
+    border: 1px solid #d1e7ff;
+    background: #f2f8ff;
+    color: #0a84ff;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.pill:hover {
+    background: #e6f2ff;
+}
+
+/* Dark theme */
+body.dark { background: #0b0b0c; color: #f5f5f7; }
+body.dark .nav { background: rgba(18,18,18,0.75); border-bottom-color: #2c2c2e; }
+body.dark .nav-links a { color: #f5f5f7; }
+body.dark .nav-links a:hover { background: #1c1c1e; }
+body.dark .section-title { color: #f5f5f7; }
+body.dark .card { background: #141415; border-color: #2c2c2e; box-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+body.dark .card:hover { border-color: #3a3a3c; box-shadow: 0 6px 18px rgba(0,0,0,0.5); }
+body.dark .footer { background: #0b0b0c; border-top-color: #2c2c2e; color: #d1d1d6; }
+body.dark .link { color: #64d2ff; }
+
+@keyframes explode {
+    from {
+        transform: translate(0px, 0px) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(0.85);
+        opacity: 0;
+    }
 }

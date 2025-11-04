@@ -54,7 +54,7 @@ class Game {
             console.log('Collision detected between shape 1 and 2!');
 
             // Increase the score
-            this.incorrectScoreVariableNameChangeThisTo_score++;
+            this.score++;
 
             // Remove the second shape from the array
             this.shapes.splice(1, 1);

@@ -4,28 +4,480 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyrus Zahiri | Static Site</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="scripts/main.js"></script>
+    <style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    margin: 0;
+    padding: 0;
+    color: #1c1c1e;
+    background: #ffffff;
+}
+
+html { scroll-behavior: smooth; }
+
+.page-section {
+    padding: 24px;
+    margin: 24px 0;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+}
+
+#section1 {
+    background-color: #fff4e6;
+}
+
+#section2 {
+    background-color: #e6f0ff;
+}
+
+#section3 {
+    background-color: #f0ffe6;
+}
+
+/* Centered layout for hello world + button */
+.centered {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Red delete cookies button */
+.delete-btn {
+    background-color: #e53935;
+    color: #ffffff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: #c62828;
+}
+
+/* Emoji explosion overlay and pieces */
+#emoji-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.cookie-emoji {
+    position: absolute;
+    font-size: 24px;
+    line-height: 1;
+    will-change: transform, opacity;
+    animation: explode var(--dur, 900ms) ease-out forwards;
+}
+
+/* ---------- Cupertino-style layout ---------- */
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.nav {
+    position: sticky;
+    top: 0;
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #e5e5ea;
+    z-index: 1000;
+}
+
+.nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+}
+
+.brand {
+    font-weight: 700;
+}
+
+.nav-links a {
+    color: #1c1c1e;
+    text-decoration: none;
+    margin-left: 16px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background-color 140ms ease, color 140ms ease;
+}
+
+.nav-links a:hover { background: #f2f2f7; }
+
+.section {
+    padding: 56px 0;
+}
+
+.hero {
+    padding: 96px 0 72px 0;
+    background:
+        radial-gradient(1000px 500px at 10% -10%, #e8f2ff 0%, rgba(232,242,255,0) 60%),
+        radial-gradient(900px 450px at 110% 0%, #fff0f3 0%, rgba(255,240,243,0) 60%),
+        linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+}
+
+.hero-title {
+    font-size: 48px;
+    line-height: 1.1;
+    margin: 0 0 8px 0;
+    background: linear-gradient(90deg, #0a84ff, #5856d6, #ff375f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-sub {
+    color: #3a3a3c;
+    margin: 0 0 20px 0;
+}
+
+.hero-actions { display: flex; gap: 12px; }
+
+.section-title {
+    font-size: 28px;
+    margin: 0 0 20px 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+}
+
+.card {
+    border: 1px solid #e5e5ea;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(10,132,255,0.12);
+    border-color: #d1e7ff;
+}
+
+.link { color: #0a84ff; text-decoration: none; }
+.link:hover { text-decoration: underline; }
+
+.footer {
+    padding: 24px 0;
+    border-top: 1px solid #e5e5ea;
+    background: #fff;
+    color: #3a3a3c;
+}
+
+/* Ensure content sits above decorative layers */
+.nav, .section, .hero, .footer { position: relative; z-index: 1; }
+
+/* Floating colorful shapes overlay */
+#shapes-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.shape-bubble {
+    position: absolute;
+    width: var(--size, 160px);
+    height: var(--size, 160px);
+    border-radius: 50%;
+    opacity: var(--opacity, 0.35);
+    filter: blur(var(--blur, 0px));
+    transform: translate(-50%, -50%) translate3d(0,0,0);
+    animation:
+        drift var(--dur, 18s) ease-in-out var(--delay, 0s) infinite alternate,
+        spin var(--spinDur, 60s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes drift {
+    from { transform: translate(-50%, -50%) translate3d(var(--x, 0px), var(--y, 0px), 0) scale(1); }
+    to   { transform: translate(-50%, -50%) translate3d(calc(var(--x, 0px) + var(--dx, 120px)), calc(var(--y, 0px) + var(--dy, -140px)), 0) scale(var(--scale, 1.1)); }
+}
+
+@keyframes spin { from { rotate: 0deg; } to { rotate: 360deg; } }
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+    .shape-bubble { animation: none; }
+}
+
+/* Pill button style for small actions */
+.pill {
+    appearance: none;
+    border: 1px solid #d1e7ff;
+    background: #f2f8ff;
+    color: #0a84ff;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.pill:hover {
+    background: #e6f2ff;
+}
+
+/* Dark theme */
+body.dark { background: #0b0b0c; color: #f5f5f7; }
+body.dark .nav { background: rgba(18,18,18,0.75); border-bottom-color: #2c2c2e; }
+body.dark .nav-links a { color: #f5f5f7; }
+body.dark .nav-links a:hover { background: #1c1c1e; }
+body.dark .section-title { color: #f5f5f7; }
+body.dark .card { background: #141415; border-color: #2c2c2e; box-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+body.dark .card:hover { border-color: #3a3a3c; box-shadow: 0 6px 18px rgba(0,0,0,0.5); }
+body.dark .footer { background: #0b0b0c; border-top-color: #2c2c2e; color: #d1d1d6; }
+body.dark .link { color: #64d2ff; }
+
+@keyframes explode {
+    from {
+        transform: translate(0px, 0px) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translate(var(--tx, 0px), var(--ty, 0px)) scale(0.85);
+        opacity: 0;
+    }
+}
+    </style>
 </head>
 <body>
-    <section id="section1" class="page-section">
-        <h1>Welcome — I’m Cyrus</h1>
-        <p>Thanks for visiting my site!</p>
-    </section>
-    
-    <section id="section2" class="page-section">
-        <h1>About This Site</h1>
-        <p>Basic HTML/CSS hosted on Firebase.</p>
-    </section>
-    
-    <section id="section3" class="page-section">
-        <h1>Contact</h1>
-        <p>Feel free to reach out anytime.</p>
+    <header class="nav">
+        <div class="container nav-inner">
+            <div class="brand">Cyrus Zahiri</div>
+            <nav class="nav-links">
+                <a href="#home">Home</a>
+                <a href="#about">About</a>
+                <a href="#projects">Projects</a>
+                <a href="#contact">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <div id="shapes-layer" aria-hidden="true"></div>
+
+    <section id="home" class="section hero">
+        <div class="container">
+            <h1 class="hero-title">I’m Cyrus Zahiri</h1>
+            <p class="hero-sub">Student, builder, and curious technologist.</p>
+            
+            <div id="count" style="display: none;">0</div>
+        </div>
     </section>
 
-    <section id="counter" class="page-section">
-        <h1>Counter</h1>
-        <p>Count: <span id="count">0</span></p>
+    <section id="about" class="section">
+        <div class="container">
+            <h2 class="section-title">About</h2>
+            <p>
+                I’m Cyrus Zahiri. I enjoy creating clean, simple experiences on the web
+                and learning by building. This site is deployed on Firebase Hosting.
+            </p>
+        </div>
     </section>
+
+    <section id="projects" class="section">
+        <div class="container">
+            <h2 class="section-title">Projects</h2>
+            <div class="grid">
+                <article class="card">
+                    <h3>Pong</h3>
+                    <p>Classic paddle vs. ball. Play against a simple AI.</p>
+                    <p><a class="link" href="pong.html">Play Pong →</a></p>
+                </article>
+                <article class="card">
+                    <h3>Snake</h3>
+                    <p>Grow by eating apples. Don’t hit the walls or yourself.</p>
+                    <p><a class="link" href="snake.html">Play Snake →</a></p>
+                </article>
+                <article class="card">
+                    <h3>Dino Run</h3>
+                    <p>Jump over obstacles and see how far you can go.</p>
+                    <p><a class="link" href="dino.html">Play Dino →</a></p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="section">
+        <div class="container">
+            <h2 class="section-title">Contact</h2>
+            <p>
+                Email: <a class="link" href="mailto:cyzahiri@outlook.com">cyzahiri@outlook.com</a>
+            </p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© <span id="year"></span> Cyrus Zahiri</p>
+        </div>
+    </footer>
+
+
+    <script>
+        // lightweight year update
+        document.addEventListener('DOMContentLoaded', function() {
+            var y = document.getElementById('year');
+            if (y) { y.textContent = new Date().getFullYear(); }
+        });
+    </script>
+    <script>
+class Main {
+    constructor() {
+        this.pageViewsKey = 'pageViewsCount';
+        this.initializeCounter();
+        this.displayCount();
+    }
+
+    initializeCounter() {
+        if (!localStorage.getItem(this.pageViewsKey)) {
+            localStorage.setItem(this.pageViewsKey, '0');
+        }
+    }
+
+    incrementCount() {
+        let currentCount = parseInt(localStorage.getItem(this.pageViewsKey));
+        currentCount++;
+        localStorage.setItem(this.pageViewsKey, currentCount.toString());
+    }
+
+    displayCount() {
+        this.incrementCount();
+        // Update count in div id count
+        document.getElementById('count').innerHTML = 'You have visited this page ' + localStorage.getItem(this.pageViewsKey)  + ' times.'
+    }
+}
+
+// Note that we construct the class here, but we don't need to assign it to a variable.
+document.mainClass = new Main();
+
+// Cookie explosion feature
+document.addEventListener('DOMContentLoaded', () => {
+    // Restore saved theme
+    try {
+        const savedTheme = localStorage.getItem('preferredTheme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark');
+        }
+    } catch (e) {}
+
+    // Theme toggle wiring
+    const themeBtn = document.getElementById('themeToggleBtn');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            try {
+                localStorage.setItem('preferredTheme', document.body.classList.contains('dark') ? 'dark' : 'light');
+            } catch (e) {}
+        });
+    }
+
+    // Gradient shuffle wiring
+    const shuffleBtn = document.getElementById('gradientShuffleBtn');
+    if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', () => {
+            const hero = document.querySelector('.hero');
+            if (!hero) return;
+            const gradients = getGradientOptions();
+            const next = gradients[Math.floor(Math.random() * gradients.length)];
+            hero.style.background = next;
+        });
+    }
+
+    // Floating shapes initialization
+    initFloatingShapes();
+});
+
+function getGradientOptions() {
+    // A set of pleasant, professional stacks matching the CSS hero pattern
+    return [
+        'radial-gradient(1000px 500px at 10% -10%, #e8f2ff 0%, rgba(232,242,255,0) 60%), radial-gradient(900px 450px at 110% 0%, #fff0f3 0%, rgba(255,240,243,0) 60%), linear-gradient(180deg, #ffffff 0%, #fafafa 100%)',
+        'radial-gradient(1000px 500px at -10% 10%, #e9ffe8 0%, rgba(233,255,232,0) 60%), radial-gradient(900px 450px at 100% -10%, #f0f4ff 0%, rgba(240,244,255,0) 60%), linear-gradient(180deg, #ffffff 0%, #fafafa 100%)',
+        'radial-gradient(1000px 500px at 20% -20%, #fff4e6 0%, rgba(255,244,230,0) 60%), radial-gradient(900px 450px at 120% -10%, #e6f0ff 0%, rgba(230,240,255,0) 60%), linear-gradient(180deg, #ffffff 0%, #fafafa 100%)',
+        'radial-gradient(1000px 500px at 0% -10%, #f5e8ff 0%, rgba(245,232,255,0) 60%), radial-gradient(900px 450px at 100% 0%, #e6fff8 0%, rgba(230,255,248,0) 60%), linear-gradient(180deg, #ffffff 0%, #fafafa 100%)'
+    ];
+}
+
+function initFloatingShapes() {
+    const container = document.getElementById('shapes-layer');
+    if (!container) return;
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const count = reduceMotion ? 4 : 12;
+    const palettes = [
+        ['#0a84ff', '#64d2ff'],
+        ['#ff375f', '#ff9f0a'],
+        ['#30d158', '#5ac8fa'],
+        ['#af52de', '#5856d6'],
+        ['#ffd60a', '#ff6b6b']
+    ];
+    for (let i = 0; i < count; i++) {
+        const [c1, c2] = palettes[i % palettes.length];
+        const el = document.createElement('div');
+        el.className = 'shape-bubble';
+        const size = 120 + Math.random() * 220; // px
+        const x = Math.random() * window.innerWidth;
+        const y = Math.random() * window.innerHeight;
+        const dx = (-60 + Math.random() * 120) * (Math.random() > 0.5 ? 1 : -1);
+        const dy = (-80 + Math.random() * 160) * (Math.random() > 0.5 ? 1 : -1);
+        const dur = 16 + Math.random() * 18; // seconds
+        const delay = Math.random() * 8; // seconds
+        const blur = Math.random() < 0.5 ? 0 : 2 + Math.random() * 3;
+        const opacity = 0.25 + Math.random() * 0.25;
+        const scale = 1 + Math.random() * 0.2;
+        const spinDur = 40 + Math.random() * 60; // seconds
+
+        el.style.setProperty('--size', size + 'px');
+        el.style.setProperty('--x', x + 'px');
+        el.style.setProperty('--y', y + 'px');
+        el.style.setProperty('--dx', dx + 'px');
+        el.style.setProperty('--dy', dy + 'px');
+        el.style.setProperty('--dur', dur + 's');
+        el.style.setProperty('--delay', delay + 's');
+        el.style.setProperty('--blur', blur + 'px');
+        el.style.setProperty('--opacity', opacity.toString());
+        el.style.setProperty('--scale', scale.toString());
+        el.style.setProperty('--spinDur', spinDur + 's');
+
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.background = `radial-gradient(120% 120% at 30% 30%, ${c1}, ${c2})`;
+        el.style.boxShadow = `0 20px 60px ${c1}33, 0 8px 24px ${c2}22`;
+
+        container.appendChild(el);
+    }
+
+    // Adjust on resize to keep coverage
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            if (!container) return;
+            container.innerHTML = '';
+            initFloatingShapes();
+        }, 300);
+    });
+}
+    </script>
 </body>
 </html>

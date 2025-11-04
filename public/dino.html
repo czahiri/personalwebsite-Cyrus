@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Run | Cyrus Zahiri</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        .game-wrap { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+        .game-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .game-title { font-size: 24px; margin: 0; }
+        .back { color: #0a84ff; text-decoration: none; }
+        .canvas-wrap { display: flex; justify-content: center; }
+        canvas { background: #0b0b0c; border-radius: 12px; width: 100%; max-width: 800px; height: auto; display: block; }
+        .hud { text-align: center; margin-top: 8px; color: #3a3a3c; }
+        body.dark .hud { color: #d1d1d6; }
+    </style>
+    <script defer src="/scripts/dino.js"></script>
+</head>
+<body>
+    <div class="game-wrap">
+        <div class="game-header">
+            <h1 class="game-title">Dino Run</h1>
+            <a class="back" href="/#projects">← Back</a>
+        </div>
+        <div class="canvas-wrap">
+            <canvas id="dino" width="800" height="280"></canvas>
+        </div>
+        <div class="hud">
+            Jump: Space / ↑ — Restart: R
+        </div>
+    </div>
+</body>
+</html>
+
