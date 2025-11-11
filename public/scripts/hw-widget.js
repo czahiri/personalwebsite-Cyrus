@@ -137,10 +137,10 @@ class ProteinSim {
         });
 
         // display toggles
-        this.showHBonds = showHBonds ? showHBonds.checked : true;
+        this.showHBonds = showHBonds ? showHBonds.checked : false;
         this.showTrails = showTrails ? showTrails.checked : false;
-        this.showCore = showCore ? showCore.checked : true;
-        this.enableDrag = enableDrag ? enableDrag.checked : true;
+        this.showCore = showCore ? showCore.checked : false;
+        this.enableDrag = enableDrag ? enableDrag.checked : false;
         showHBonds && showHBonds.addEventListener('change', () => this.showHBonds = showHBonds.checked);
         showTrails && showTrails.addEventListener('change', () => this.showTrails = showTrails.checked);
         showCore && showCore.addEventListener('change', () => this.showCore = showCore.checked);
@@ -279,7 +279,7 @@ class ProteinSim {
                 const range = 100; // interaction range
                 if (d < range) {
                     // Make HP repulsion grow near contact; amplify homotypic attraction per solvent
-                    let fa = (eps * (1 - d / range));
+                    let fa = (eps * (1 - d / range)) * (1 - 0.3 * this.params.temp);
                     if ((a.type !== b.type)) fa *= 1.3; // stronger HP repulsion
                     if (this.solvent === 'water' && a.type === 'H' && b.type === 'H') fa *= 1.6; // orange↔orange in water
                     if (this.solvent === 'membrane' && a.type === 'P' && b.type === 'P') fa *= 1.6; // blue↔blue in membrane
@@ -291,6 +291,7 @@ class ProteinSim {
         }
 
         // solvent radial field: in water, H toward center, P outward; invert in membrane
+        const strengthen = 1 + (1 - this.cool) * 1.2; // stronger as we cool
         for (let i = 0; i < n; i++) {
             const p = nodes[i];
             const dx = cx - p.x, dy = cy - p.y; const d = Math.max(1e-3, Math.hypot(dx, dy));
@@ -301,8 +302,38 @@ class ProteinSim {
             else dir = (p.type === 'H') ? 0.6 : -0.6;
             const solventScale = this.solvent === 'water' ? 1.0 : (this.solvent === 'intermediate' ? 0.7 : 0.5);
             // stronger with distance
-            const mag = radialK * solventScale * dir * d * 1.0;
+            const mag = radialK * solventScale * strengthen * (1 - 0.5 * this.params.temp) * dir * d * 1.0;
             p.fx += mag * ux; p.fy += mag * uy;
+        }
+
+        // target radius field for robust native-like arrangement (orange-in/blue-out)
+        {
+            const minDim = Math.min(this.w, this.h);
+            const coreR = 0.22 * minDim; // preferred hydrophobic core radius
+            const shellR = 0.40 * minDim; // preferred polar shell radius
+            const kRing = 0.06 * strengthen * (1 - 0.4 * this.params.temp);
+            for (let i = 0; i < n; i++) {
+                const p = nodes[i];
+                const dx = p.x - cx, dy = p.y - cy; const r = Math.max(1e-3, Math.hypot(dx, dy));
+                const ux = dx / r, uy = dy / r;
+                let rTarget;
+                if (this.solvent === 'water') rTarget = (p.type === 'H') ? coreR : shellR;
+                else if (this.solvent === 'membrane') rTarget = (p.type === 'H') ? shellR : coreR;
+                else rTarget = (p.type === 'H') ? (0.28 * minDim) : (0.36 * minDim);
+                const delta = r - rTarget; // positive means too far out
+                const f = -kRing * delta;
+                p.fx += f * ux; p.fy += f * uy;
+            }
+        }
+
+        // soft wall forces to keep enclosed (no flinging out)
+        const margin = 22, kWall = 0.6;
+        for (let i = 0; i < n; i++) {
+            const p = nodes[i];
+            if (p.x < margin) p.fx += kWall * (margin - p.x);
+            if (p.x > this.w - margin) p.fx -= kWall * (p.x - (this.w - margin));
+            if (p.y < margin) p.fy += kWall * (margin - p.y);
+            if (p.y > this.h - margin) p.fy -= kWall * (p.y - (this.h - margin));
         }
 
         // thermal jitter (with cooling)
@@ -330,6 +361,14 @@ class ProteinSim {
                 if (p.trail.length > 24) p.trail.shift();
             }
         }
+
+        // recentre cluster gently toward canvas center (keeps native shape in middle)
+        let sumX = 0, sumY = 0;
+        for (let i = 0; i < n; i++) { sumX += nodes[i].x; sumY += nodes[i].y; }
+        const cxNow = sumX / n, cyNow = sumY / n;
+        const shiftX = (cx - cxNow) * 0.05;
+        const shiftY = (cy - cyNow) * 0.05;
+        for (let i = 0; i < n; i++) { nodes[i].x += shiftX; nodes[i].y += shiftY; }
 
         // compute a simple potential energy estimate
         let E = 0;
@@ -369,6 +408,9 @@ class ProteinSim {
 
     draw() {
         const ctx = this.ctx; const nodes = this.nodes; const n = nodes.length;
+        if (!n) return;
+        ctx.save();
+        ctx.globalCompositeOperation = 'source-over';
         ctx.clearRect(0,0,this.w,this.h);
         // background
         ctx.fillStyle = '#0b0b0c';
@@ -428,10 +470,10 @@ class ProteinSim {
             ctx.beginPath();
             const fill = p.type === 'H' ? '#ff9f0a' : '#64d2ff';
             ctx.fillStyle = fill;
-            ctx.arc(p.x, p.y, 8, 0, Math.PI*2);
+            ctx.arc(p.x, p.y, 10, 0, Math.PI*2);
             ctx.fill();
             ctx.strokeStyle = p.type === 'H' ? 'rgba(255,159,10,0.9)' : 'rgba(100,210,255,0.9)';
-            ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.lineWidth = 2; ctx.stroke();
             // label with one-letter code
             const code = p.code || (p.type === 'H' ? 'H' : 'P');
             ctx.fillStyle = '#0b0b0c';
@@ -453,14 +495,13 @@ class ProteinSim {
             ctx.fillStyle = '#0b0b0c';
             ctx.fillText(text, x + 6, y);
         }
-        // legend (color key)
-        ctx.fillStyle = 'rgba(255,255,255,0.9)';
-        ctx.font = '14px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial';
-        // swatches
-        ctx.fillStyle = '#ff9f0a'; ctx.fillRect(16, 10, 16, 10);
-        ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillText('Orange = hydrophobic (nonpolar)', 36, 20);
-        ctx.fillStyle = '#64d2ff'; ctx.fillRect(290, 10, 16, 10);
-        ctx.fillStyle = 'rgba(255,255,255,0.9)'; ctx.fillText('Blue = hydrophilic (polar)', 310, 20);
+        // legend text only (no color blocks), right-aligned for readability
+        ctx.font = '13px -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial';
+        ctx.fillStyle = 'rgba(255,255,255,0.82)';
+        const keyText = 'Orange = nonpolar (hydrophobic); Blue = polar (hydrophilic)';
+        const tw = ctx.measureText(keyText).width;
+        ctx.fillText(keyText, Math.max(12, this.w - tw - 12), 22);
+        ctx.restore();
     }
 
     updateEnergyBar() {
