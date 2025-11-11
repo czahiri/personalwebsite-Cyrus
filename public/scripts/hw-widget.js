@@ -54,6 +54,8 @@ class ProteinSim {
         this.energyHistory = [];
         const chart = document.getElementById('energyChart');
         this.energyCtx = chart ? chart.getContext('2d') : null;
+        this.energyMin = Infinity;
+        this.energyMax = -Infinity;
         this.loop = this.loop.bind(this);
         requestAnimationFrame(this.loop);
     }
@@ -404,6 +406,11 @@ class ProteinSim {
         }
 
         this.energy = E;
+        // track dynamic range for the energy bar
+        if (Number.isFinite(E)) {
+            if (E < this.energyMin) this.energyMin = E;
+            if (E > this.energyMax) this.energyMax = E;
+        }
     }
 
     draw() {
@@ -506,13 +513,24 @@ class ProteinSim {
 
     updateEnergyBar() {
         const fill = document.getElementById('energyFill');
+        const valueEl = document.getElementById('energyValue');
         if (!fill) return;
-        // Map energy to 0..100%: use a soft logistic-like mapping
         const E = this.energy;
-        // Assume typical E range roughly [-50, +150]
-        const clamped = Math.max(-50, Math.min(150, E));
-        const pct = 100 - ((clamped + 50) / 200) * 100; // lower E => higher fill
+        if (!Number.isFinite(E)) return;
+        // Use dynamic min/max with sensible fallback span
+        const span = Math.max(40, this.energyMax - this.energyMin);
+        const mid = (this.energyMax + this.energyMin) / 2;
+        // lower energy (more stable) → higher fill
+        let pct = 50 - ((E - mid) / span) * 100; // center at 50%
+        pct = Math.max(2, Math.min(98, pct));
         fill.style.height = pct.toFixed(1) + '%';
+        // subtle color shift with stability
+        const t = Math.max(0, Math.min(1, (pct - 2) / 96));
+        const r = Math.round(10 + (100 - 10) * (1 - t));
+        const g = Math.round(132 + (210 - 132) * t);
+        const b = Math.round(255 + (255 - 255) * t);
+        fill.style.background = `linear-gradient(180deg, rgb(${g},${b},${b}), rgb(${r},${g},255))`;
+        if (valueEl) valueEl.textContent = `E ≈ ${E.toFixed(1)} (min ${isFinite(this.energyMin)?this.energyMin.toFixed(1):'…'}, max ${isFinite(this.energyMax)?this.energyMax.toFixed(1):'…'})`;
     }
 
     loop(now) {

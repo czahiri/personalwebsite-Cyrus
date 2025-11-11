@@ -67,8 +67,8 @@
                 <div class="spacer"></div>
                 <div class="panel edu" style="margin:0;">
                     <h3>How proteins fold</h3>
-                    <p>Proteins are chains of amino acids. Hydrophobic (nonpolar, orange) residues prefer the interior; hydrophilic (polar, blue) prefer the solvent.</p>
-                    <p>Change the solvent and temperature. In water, nonpolar clump inward forming a core; polar remain outside. The bar shows an approximate potential energy.</p>
+                    <p>Proteins fold to minimize Gibbs free energy. In aqueous (polar) solvent, the hydrophobic effect drives nonpolar side chains (orange) into a buried core, while polar/charged side chains (blue) remain solvent‑exposed; this preference reverses in non‑polar environments.</p>
+                    <p>This 2D coarse‑grained model illustrates that principle using harmonic bonds, a bend term, and a hydropathy‑dependent pair potential with a simple solvent exposure term, producing the expected core–shell organization.</p>
                 </div>
             </div>
             <div class="panel side-panel">
@@ -76,6 +76,7 @@
                     <div id="energyFill" class="bar-fill"></div>
                 </div>
                 <div class="bar-label">Potential energy</div>
+                <div id="energyValue" class="bar-label" style="margin-top:4px;">E ≈ …</div>
                 <canvas id="energyChart" width="280" height="140" style="width:100%;height:auto;border-radius:8px;background:#0b0b0c;"></canvas>
             </div>
         </div>
