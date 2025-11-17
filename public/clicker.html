@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicker Leaderboard | Cyrus Zahiri</title>
+    <link rel="stylesheet" href="/style.css">
+    <!-- Firebase SDKs (auto-configured by Hosting) -->
+    <script defer src="/__/firebase/12.4.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/12.4.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=false"></script>
+    <script defer src="/scripts/clicker.js"></script>
+    <style>
+        .wrap { max-width: 960px; margin: 24px auto; padding: 0 16px; }
+        .header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .title { margin: 0; font-size: 22px; }
+        .back { color: #0a84ff; text-decoration: none; }
+        .game { margin-top: 16px; display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+        .panel { border: 1px solid #e5e5ea; border-radius: 12px; padding: 12px; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+        .center { display: flex; align-items: center; justify-content: center; }
+        .status { display: flex; align-items: center; justify-content: center; gap: 16px; }
+        .big { font-size: 28px; font-weight: 700; }
+        .click-area { width: 100%; height: 360px; border-radius: 12px; border: 2px dashed #e5e5ea; cursor: pointer; user-select: none; }
+        .click-area:hover { background: #fafcff; }
+        .controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .pill { padding: 8px 12px; background: linear-gradient(90deg, #0a84ff, #5856d6); color: #fff; border: 0; border-radius: 999px; cursor: pointer; }
+        .input { padding: 8px 10px; border: 1px solid #e5e5ea; border-radius: 8px; min-width: 240px; }
+        .meta { color: #3a3a3c; font-size: 13px; }
+        .list { display: grid; gap: 8px; }
+        .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 10px; border: 1px solid #e5e5ea; background: #fafafa; }
+        body.dark .panel { background: #141415; border-color: #2c2c2e; }
+        body.dark .click-area { border-color: #2c2c2e; }
+        body.dark .row { background: #1c1c1e; border-color: #2c2c2e; }
+        body.dark .input { background: #0b0b0c; border-color: #2c2c2e; color: #f5f5f7; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="header">
+            <h1 class="title">Clicker Leaderboard</h1>
+            <a class="back" href="/#projects">← Back</a>
+        </div>
+        <div class="game">
+            <div class="panel">
+                <div class="status">
+                    <div>Time: <span id="time" class="big">10.0</span>s</div>
+                    <div>Score: <span id="score" class="big">0</span></div>
+                    <div>Best: <span id="best" class="big">0</span></div>
+                </div>
+                <div id="area" class="click-area center" aria-label="Click area">
+                    <div class="meta">Click as fast as you can!</div>
+                </div>
+                <div class="controls">
+                    <input id="name" class="input" type="text" placeholder="Your name" />
+                    <button id="start" class="pill">Start (10s)</button>
+                    <button id="submit" class="pill" disabled>Submit Score</button>
+                    <span id="status" class="meta"></span>
+                </div>
+            </div>
+            <div class="panel">
+                <h3 style="margin:0 0 8px 0;">Top Scores</h3>
+                <div id="list" class="list"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
